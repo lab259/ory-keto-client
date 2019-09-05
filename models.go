@@ -57,29 +57,43 @@ func (err *ResponseError) Error() string {
  * Accept: application/json
  */
 
-type AcpAllowedRequest struct {
+type AllowedORYAccessControlPolicyRequest struct {
 	Action   string      `json:"action"`
 	Context  interface{} `json:"context"`
 	Resource string      `json:"resource"`
 	Subject  string      `json:"subject"`
 }
 
-type AcpAllowedResponse struct {
+type AllowedORYAccessControlPolicyResponse struct {
 	Allowed bool `json:"allowed"`
 }
 
 /**
- * AcpPutPolicies
+ * AcpUpsertORYAccessPolicy
  *
  * PUT /engines/acp/ory/{flavor}/policies HTTP/1.1
  * Content-Type: application/json
  * Accept: application/json
  */
 
-type AcpUpsertORYAccessPolicyRequest struct {
+type UpsertORYAccessPolicyRequest struct {
 	ORYAccessControlPolicy
 }
 
-type AcpUpsertORYAccessPolicyResponseOK struct {
+type UpsertORYAccessPolicyResponseOK struct {
 	*ORYAccessControlPolicy
+}
+
+/**
+ * GET /engines/acp/ory/{flavor}/policies HTTP/1.1
+ * Accept: application/json
+ */
+
+type ListORYAccessPolicyRequest struct {
+	Limit  int64
+	Offset int64
+}
+
+type ListORYAccessPolicyResponseOK struct {
+	Policies []ORYAccessControlPolicy
 }
