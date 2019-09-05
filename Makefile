@@ -2,15 +2,17 @@ COVERDIR=$(CURDIR)/.cover
 COVERAGEFILE=$(COVERDIR)/cover.out
 COVERAGEREPORT=$(COVERDIR)/report.html
 
+GINKGO=go run github.com/onsi/ginkgo/ginkgo
+
 test:
-	@ginkgo --failFast ./...
+	@$(GINKGO) --failFast ./...
 
 test-watch:
-	@ginkgo watch -cover -r ./...
+	@$(GINKGO) watch -cover -r ./...
 
 coverage-ci:
 	@mkdir -p $(COVERDIR)
-	@ginkgo -r -covermode=count --cover --trace ./
+	@$(GINKGO) -r -covermode=atomic --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --compilers=2 ./
 	@echo "mode: count" > "${COVERAGEFILE}"
 	@find . -type f -name '*.coverprofile' -exec cat {} \; -exec rm -f {} \; | grep -h -v "^mode:" >> ${COVERAGEFILE}
 
