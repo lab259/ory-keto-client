@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_DB: keto
+      POSTGRES_USER: keto
+    ports:
+      - 5432:5432
+    tmpfs: /var/lib/postgresql/data
+    volumes:
+        - ./.docker/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d/
+
+  keto-server:
+    image: oryd/keto:v0.3.3-sandbox
+    command: ["serve"]
+    environment:
+      DSN: "postgres://keto@postgres:5432/keto?sslmode=disable"
+    ports:
+    - 4466:4466
+    depends_on:
+      - postgres
+
+  keto-migrate:
+    image: oryd/keto:v0.3.3-sandbox
+    command: ["migrate", "sql", "-e"]
+    environment:
+      DSN: "postgres://keto@postgres:5432/keto?sslmode=disable"
+    depends_on:
+      - postgres
