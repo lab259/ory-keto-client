@@ -3,11 +3,18 @@ package ketoclient
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/gojek/heimdall/hystrix"
+)
+
+var (
+	ErrPolicyNotFound = errors.New("policy not found")
 )
 
 type UnexpectedResponse struct {
@@ -95,8 +102,6 @@ func (client *Client) UpsertOryAccessControlPolicy(flavor Flavor, request *Upser
 		return nil, err
 	}
 
-	fmt.Println("sending:", buf.String())
-
 	response, err := client.client.Put(client._url+"/engines/acp/ory/"+string(flavor)+"/policies", buf, nil)
 	if err != nil {
 		return nil, err
@@ -132,13 +137,6 @@ func (client *Client) UpsertOryAccessControlPolicy(flavor Flavor, request *Upser
 //
 // See Also https://www.ory.sh/docs/keto/sdk/api#listoryaccesscontrolpolicies
 func (client *Client) ListOryAccessControlPolicy(flavor Flavor, request *ListORYAccessPolicyRequest) (*ListORYAccessPolicyResponseOK, error) {
-	buf := bytes.NewBuffer(nil)
-	enc := json.NewEncoder(buf)
-	err := enc.Encode(request)
-	if err != nil {
-		return nil, err
-	}
-
 	s := ""
 	if request.Limit > 0 {
 		s += fmt.Sprintf("limit=%d", request.Limit)
@@ -170,6 +168,44 @@ func (client *Client) ListOryAccessControlPolicy(flavor Flavor, request *ListORY
 		}
 		return r, nil
 	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, r
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}
+
+// GetOryAccessControlPolicy list ORY Access Control Policies.
+//
+// ```
+// GET /engines/acp/ory/{flavor}/policies/{id} HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#getoryaccesscontrolpolicy
+func (client *Client) GetOryAccessControlPolicy(flavor Flavor, id string) (*GetORYAccessPolicyResponseOK, error) {
+	response, err := client.client.Get(client._url+"/engines/acp/ory/"+string(flavor)+"/policies/"+id, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &GetORYAccessPolicyResponseOK{}
+		err := json.NewDecoder(response.Body).Decode(&r.Policy)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
+	case http.StatusNotFound:
+		return nil, ErrPolicyNotFound
+	case http.StatusInternalServerError:
+		io.Copy(os.Stdout, response.Body)
 		r := &ResponseError{}
 		dec := json.NewDecoder(response.Body)
 		err := dec.Decode(r)

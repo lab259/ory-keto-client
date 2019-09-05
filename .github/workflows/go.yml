@@ -24,3 +24,7 @@ jobs:
 
     - name: Test
       run: go run github.com/onsi/ginkgo/ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --compilers=2
+    
+    - name: Upload to Codecov
+      run: bash <(curl -s https://codecov.io/bash)
+

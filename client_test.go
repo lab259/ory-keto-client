@@ -145,4 +145,176 @@ var _ = Describe("Client", func() {
 			Expect(listResponse.Policies[0].ID).To(Equal("id1"))
 		})
 	})
+
+	Describe("ListOryAccessControlPolicy", func() {
+		It("should list one policy", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlPolicy(ketoclient.Exact, &ketoclient.UpsertORYAccessPolicyRequest{
+				ORYAccessControlPolicy: ketoclient.ORYAccessControlPolicy{
+					ID:          "id1",
+					Description: "Delete action for Snake Eyes",
+					Subjects:    []string{"user:snake-eyes"},
+					Resources:   []string{"blog1:post:33"},
+					Actions:     []string{"delete"},
+					Effect:      ketoclient.Allow,
+					Conditions: map[string]interface{}{
+						"test": "value",
+					},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			listResponse, err := client.ListOryAccessControlPolicy(ketoclient.Exact, &ketoclient.ListORYAccessPolicyRequest{})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Policies).To(HaveLen(1))
+			Expect(listResponse.Policies[0].ID).To(Equal("id1"))
+			Expect(listResponse.Policies[0].Description).To(Equal("Delete action for Snake Eyes"))
+			Expect(listResponse.Policies[0].Subjects).To(ConsistOf("user:snake-eyes"))
+			Expect(listResponse.Policies[0].Actions).To(ConsistOf("delete"))
+			Expect(listResponse.Policies[0].Resources).To(ConsistOf("blog1:post:33"))
+			Expect(listResponse.Policies[0].Effect).To(Equal(ketoclient.Allow))
+			Expect(listResponse.Policies[0].Conditions).To(HaveKeyWithValue("test", "value"))
+
+		})
+
+		It("should initialize a client with options", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlPolicy(ketoclient.Exact, &ketoclient.UpsertORYAccessPolicyRequest{
+				ORYAccessControlPolicy: ketoclient.ORYAccessControlPolicy{
+					ID:        "id1",
+					Subjects:  []string{"user:snake-eyes"},
+					Resources: []string{"blog1:post:33"},
+					Actions:   []string{"delete"},
+					Effect:    ketoclient.Allow,
+					Conditions: map[string]interface{}{
+						"test": "value",
+					},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = client.UpsertOryAccessControlPolicy(ketoclient.Exact, &ketoclient.UpsertORYAccessPolicyRequest{
+				ORYAccessControlPolicy: ketoclient.ORYAccessControlPolicy{
+					ID:        "id2",
+					Subjects:  []string{"user:snake-eyes"},
+					Resources: []string{"blog1:post:34"},
+					Actions:   []string{"delete"},
+					Effect:    ketoclient.Allow,
+					Conditions: map[string]interface{}{
+						"test": "value",
+					},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = client.UpsertOryAccessControlPolicy(ketoclient.Exact, &ketoclient.UpsertORYAccessPolicyRequest{
+				ORYAccessControlPolicy: ketoclient.ORYAccessControlPolicy{
+					ID:        "id3",
+					Subjects:  []string{"user:snake-eyes"},
+					Resources: []string{"blog1:post:35"},
+					Actions:   []string{"delete"},
+					Effect:    ketoclient.Allow,
+					Conditions: map[string]interface{}{
+						"test": "value",
+					},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = client.UpsertOryAccessControlPolicy(ketoclient.Exact, &ketoclient.UpsertORYAccessPolicyRequest{
+				ORYAccessControlPolicy: ketoclient.ORYAccessControlPolicy{
+					ID:        "id4",
+					Subjects:  []string{"user:snake-eyes"},
+					Resources: []string{"blog1:post:36"},
+					Actions:   []string{"delete"},
+					Effect:    ketoclient.Allow,
+					Conditions: map[string]interface{}{
+						"test": "value",
+					},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = client.UpsertOryAccessControlPolicy(ketoclient.Exact, &ketoclient.UpsertORYAccessPolicyRequest{
+				ORYAccessControlPolicy: ketoclient.ORYAccessControlPolicy{
+					ID:        "id5",
+					Subjects:  []string{"user:snake-eyes"},
+					Resources: []string{"blog1:post:37"},
+					Actions:   []string{"delete"},
+					Effect:    ketoclient.Allow,
+					Conditions: map[string]interface{}{
+						"test": "value",
+					},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			listResponse, err := client.ListOryAccessControlPolicy(ketoclient.Exact, &ketoclient.ListORYAccessPolicyRequest{
+				Limit: 2,
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Policies).To(HaveLen(2))
+			Expect(listResponse.Policies[0].ID).To(Equal("id1"))
+			Expect(listResponse.Policies[1].ID).To(Equal("id2"))
+
+			listResponse, err = client.ListOryAccessControlPolicy(ketoclient.Exact, &ketoclient.ListORYAccessPolicyRequest{
+				Limit:  2,
+				Offset: 2,
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Policies).To(HaveLen(2))
+			Expect(listResponse.Policies[0].ID).To(Equal("id3"))
+			Expect(listResponse.Policies[1].ID).To(Equal("id4"))
+
+			listResponse, err = client.ListOryAccessControlPolicy(ketoclient.Exact, &ketoclient.ListORYAccessPolicyRequest{
+				Limit:  2,
+				Offset: 4,
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Policies).To(HaveLen(1))
+			Expect(listResponse.Policies[0].ID).To(Equal("id5"))
+		})
+	})
+
+	Describe("GetOryAccessControlPolicy", func() {
+		It("should get a policy", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlPolicy(ketoclient.Exact, &ketoclient.UpsertORYAccessPolicyRequest{
+				ORYAccessControlPolicy: ketoclient.ORYAccessControlPolicy{
+					ID:          "id1",
+					Description: "Delete action for Snake Eyes",
+					Subjects:    []string{"user:snake-eyes"},
+					Resources:   []string{"blog1:post:33"},
+					Actions:     []string{"delete"},
+					Effect:      ketoclient.Allow,
+					Conditions: map[string]interface{}{
+						"test": "value",
+					},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			response, err := client.GetOryAccessControlPolicy(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response.Policy.ID).To(Equal("id1"))
+			Expect(response.Policy.Description).To(Equal("Delete action for Snake Eyes"))
+			Expect(response.Policy.Subjects).To(ConsistOf("user:snake-eyes"))
+			Expect(response.Policy.Actions).To(ConsistOf("delete"))
+			Expect(response.Policy.Resources).To(ConsistOf("blog1:post:33"))
+			Expect(response.Policy.Effect).To(Equal(ketoclient.Allow))
+			Expect(response.Policy.Conditions).To(HaveKeyWithValue("test", "value"))
+		})
+
+		It("should fail getting a policy that does not exists", func() {
+			client := ketoClient()
+
+			response, err := client.GetOryAccessControlPolicy(ketoclient.Exact, "id1")
+			Expect(err).To(HaveOccurred())
+			Expect(response).To(BeNil())
+			Expect(err).To(Equal(ketoclient.ErrPolicyNotFound))
+		})
+	})
 })

@@ -97,3 +97,12 @@ type ListORYAccessPolicyRequest struct {
 type ListORYAccessPolicyResponseOK struct {
 	Policies []ORYAccessControlPolicy
 }
+
+/**
+ * GET /engines/acp/ory/{flavor}/policies/{id} HTTP/1.1
+ * Accept: application/json
+ */
+
+type GetORYAccessPolicyResponseOK struct {
+	Policy ORYAccessControlPolicy
+}
