@@ -1,8 +1,19 @@
-# go-package-boilerplate [![CircleCI](https://circleci.com/gh/lab259/go-package-boilerplate.svg?style=shield&circle-token=224f68e222b4a6abeb01f2d0dda3b4cf264b806e)](https://circleci.com/gh/lab259/go-package-boilerplate)
-
-> See here [how to create a repository from a template](https://help.github.com/en/articles/creating-a-repository-from-a-template).
+# ory-keto-client [![Actions Status](https://github.com/lab259/ory-keto-client/workflows/Go/badge.svg)](https://github.com/lab259/ory-keto-client/actions)
 
 ## Getting Started
+
+`ory-keto-client` is the [Lab259](https://github.com/lab259) implementation of
+the [ORY Keto](https://github.com/ory/keto) client library.
+
+This client library uses [gojek/heimdall](https://github.com/gojek/heimdall)
+to make the requests. `Heimdall` uses [afex/hystrix-go](https://github.com/afex/hystrix-go),
+a [netflix/Hystrix](https://github.com/netflix/Hystrix) implementation in Go, to
+provide retriers and circuit breaker. Check [here](https://github.com/netflix/Hystrix/wiki)
+to see why is this important.
+
+### Usage
+
+TODO
 
 ### Prerequisites
 
@@ -11,25 +22,15 @@ What things you need to setup the project:
 - [go](https://golang.org/doc/install)
 - [ginkgo](http://onsi.github.io/ginkgo/)
 
-### Environment
-
-Close the repository:
-
-```bash
-git clone git@github.com:lab259/go-package-boilerplate.git
-```
-
-Now, the dependencies must be installed.
-
-```
-cd go-package-boilerplate && go mod download
-```
-
-:wink: Finally, you are done to start developing.
-
 ### Running tests
 
-In the `src/github.com/lab259/go-package-boilerplate` directory, execute:
+First, we have to bring up the dependencies:
+
+```bash
+docker-compose up -d
+```
+
+Then we are able to run the tests:
 
 ```bash
 make test
