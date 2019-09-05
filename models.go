@@ -2,15 +2,22 @@ package ketoclient
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"json"
+)
+
+type Effect string
+
+const (
+	Allow Effect = "allow"
+	Deny  Effect = "deny"
 )
 
 type ORYAccessControlPolicy struct {
 	Actions     []string    `json:"actions"`
 	Conditions  interface{} `json:"conditions"`
 	Description string      `json:"description"`
-	Effect      string      `json:"effect"`
+	Effect      Effect      `json:"effect"`
 	ID          string      `json:"id"`
 	Resources   []string    `json:"resources"`
 	Subjects    []string    `json:"subjects"`
@@ -18,12 +25,12 @@ type ORYAccessControlPolicy struct {
 
 // ResponseError is the default error format for the Keto service.
 type ResponseError struct {
-	Code    int64    `json:"code"`
-	Details json.Raw `json:"details"`
-	Message string   `json:"message,omitempty"`
-	Reason  string   `json:"reason,omitempty"`
-	Request string   `json:"request,omitempty"`
-	Status  string   `json:"status,omitempty"`
+	Code    int64           `json:"code"`
+	Details json.RawMessage `json:"details"`
+	Message string          `json:"message,omitempty"`
+	Reason  string          `json:"reason,omitempty"`
+	Request string          `json:"request,omitempty"`
+	Status  string          `json:"status,omitempty"`
 }
 
 func (err *ResponseError) Error() string {
@@ -69,10 +76,10 @@ type AcpAllowedResponse struct {
  * Accept: application/json
  */
 
-type AcpPutPoliciesRequest struct {
-	Policy ORYAccessControlPolicy `json:",inline"`
+type AcpUpsertORYAccessPolicyRequest struct {
+	ORYAccessControlPolicy
 }
 
-type AcpPutPoliciesResponseOK struct {
-	Policy ORYAccessControlPolicy `json:",inline"`
+type AcpUpsertORYAccessPolicyResponseOK struct {
+	*ORYAccessControlPolicy
 }

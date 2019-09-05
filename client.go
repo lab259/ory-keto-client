@@ -55,7 +55,7 @@ func (client *Client) Allowed(flavor Flavor, request *AcpAllowedRequest) (*AcpAl
 		return nil, err
 	}
 
-	response, err := client.client.Post(client._url+"/"+string(flavor)+"/allowed", buf, nil)
+	response, err := client.client.Post(client._url+"/engines/acp/ory/"+string(flavor)+"/allowed", buf, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -65,6 +65,51 @@ func (client *Client) Allowed(flavor Flavor, request *AcpAllowedRequest) (*AcpAl
 		return &AcpAllowedResponse{Allowed: true}, nil
 	case http.StatusForbidden:
 		return &AcpAllowedResponse{Allowed: false}, nil
+	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, r
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}
+
+// UpsertOryAccessControlPolicy an ORY Access Control Policy.
+//
+// ```
+// PUT /engines/acp/ory/{flavor}/policies HTTP/1.1
+// Content-Type: application/json
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#upsertoryaccesscontrolpolicy
+func (client *Client) UpsertOryAccessControlPolicy(flavor Flavor, request *AcpUpsertORYAccessPolicyRequest) (*AcpUpsertORYAccessPolicyResponseOK, error) {
+	buf := bytes.NewBuffer(nil)
+	enc := json.NewEncoder(buf)
+	err := enc.Encode(request)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("sending:", buf.String())
+
+	response, err := client.client.Put(client._url+"/engines/acp/ory/"+string(flavor)+"/policies", buf, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &AcpUpsertORYAccessPolicyResponseOK{}
+		err := json.NewDecoder(response.Body).Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
 	case http.StatusInternalServerError:
 		r := &ResponseError{}
 		dec := json.NewDecoder(response.Body)

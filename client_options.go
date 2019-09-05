@@ -1,6 +1,8 @@
 package ketoclient
 
 import (
+	"net/url"
+
 	"github.com/gojek/heimdall/hystrix"
 )
 
@@ -11,7 +13,13 @@ func New(opts ...Option) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
+	if c.url.Scheme == "" {
+		c.url.Scheme = "http"
+	}
 	c._url = c.url.String()
+	if c.client == nil {
+		c.client = hystrix.NewClient()
+	}
 	return c
 }
 
@@ -23,17 +31,9 @@ func WithHystrixClient(client *hystrix.Client) Option {
 	}
 }
 
-// WithHost creates an option that defines a host name for the Keto server.
-func WithHost(host string) Option {
+// WithURL creates an option that defines a host name for the Keto server.
+func WithURL(u *url.URL) Option {
 	return func(c *Client) {
-		c.url.Host = host
-	}
-}
-
-// WithBaseURI creates an option that defines a base URI for the Keto server
-// endpoints.
-func WithBaseURI(baseURI string) Option {
-	return func(c *Client) {
-		c.url.Path = baseURI
+		c.url = *u
 	}
 }
