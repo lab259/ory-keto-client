@@ -469,4 +469,32 @@ var _ = Describe("Client", func() {
 			Expect(listResponse.Roles[0].ID).To(Equal("id3"))
 		})
 	})
+
+	Describe("DeleteOryAccessControlRole", func() {
+		It("should delete a role", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id1",
+					Members: []string{"user1", "user2", "user3"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			err = client.DeleteOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+
+			listResponse, err := client.ListOryAccessControlRole(ketoclient.Exact, &ketoclient.ListORYAccessRoleRequest{})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Roles).To(HaveLen(0))
+		})
+
+		It("should delete a non existing role (YEASSSS, that is right)", func() {
+			client := ketoClient()
+
+			err := client.DeleteOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
 })

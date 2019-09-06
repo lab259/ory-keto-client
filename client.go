@@ -379,3 +379,33 @@ func (client *Client) ListOryAccessControlRole(flavor Flavor, request *ListORYAc
 		return nil, &UnexpectedResponse{Response: response}
 	}
 }
+
+// DeleteOryAccessControlRole deletes an ORY Access Control Policy.
+//
+// ```
+// DELETE /engines/acp/ory/{flavor}/roles/{id} HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#delete-an-ory-access-control-policy-role
+func (client *Client) DeleteOryAccessControlRole(flavor Flavor, id string) error {
+	response, err := client.client.Delete(client._url+"/engines/acp/ory/"+string(flavor)+"/roles/"+id, nil)
+	if err != nil {
+		return err
+	}
+
+	switch response.StatusCode {
+	case http.StatusNoContent:
+		return nil
+	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return err
+		}
+		return r
+	default:
+		return &UnexpectedResponse{Response: response}
+	}
+}

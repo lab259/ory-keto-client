@@ -149,3 +149,16 @@ type ListORYAccessRoleRequest struct {
 type ListORYAccessRoleResponseOK struct {
 	Roles []ORYAccessControlRole
 }
+
+/**
+ * GET /engines/acp/ory/{flavor}/roles HTTP/1.1
+ * Accept: application/json
+ */
+
+type AddMembersORYAccessRoleRequest struct {
+	Members []string `json:"members"`
+}
+
+type AddMembersORYAccessRoleResponseOK struct {
+	Role ORYAccessControlRole
+}
