@@ -314,7 +314,7 @@ var _ = Describe("Client", func() {
 			response, err := client.GetOryAccessControlPolicy(ketoclient.Exact, "id1")
 			Expect(err).To(HaveOccurred())
 			Expect(response).To(BeNil())
-			Expect(err).To(Equal(ketoclient.ErrPolicyNotFound))
+			Expect(err).To(Equal(ketoclient.ErrNotFound))
 		})
 	})
 
@@ -354,7 +354,7 @@ var _ = Describe("Client", func() {
 	})
 
 	Describe("UpsertOryAccessControlRole", func() {
-		FIt("should insert a role", func() {
+		It("should insert a role", func() {
 			client := ketoClient()
 
 			response, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
@@ -368,7 +368,40 @@ var _ = Describe("Client", func() {
 			Expect(response.Role.ID).To(Equal("id1"))
 			Expect(response.Role.Members).To(ConsistOf("user:snake-eyes", "user:tank", "user:scarlet"))
 
-			// TODO: To list the roles.
+			getResponse, err := client.GetOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(getResponse.Role.ID).To(Equal("id1"))
+			Expect(getResponse.Role.Members).To(ConsistOf("user:snake-eyes", "user:tank", "user:scarlet"))
+		})
+	})
+
+	Describe("GetOryAccessControlRole", func() {
+		It("should get a role", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id1",
+					Members: []string{"user:snake-eyes", "user:tank", "user:scarlet"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			response, err := client.GetOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(response.Role.ID).To(Equal("id1"))
+			Expect(response.Role.Members).To(ConsistOf("user:snake-eyes", "user:tank", "user:scarlet"))
+		})
+
+		It("should fail getting a role that does not exists", func() {
+			client := ketoClient()
+
+			response, err := client.GetOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).To(HaveOccurred())
+			Expect(response).To(BeNil())
+			Expect(err).To(Equal(ketoclient.ErrNotFound))
 		})
 	})
 })

@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	ErrPolicyNotFound = errors.New("policy not found")
+	ErrNotFound = errors.New("policy not found")
 )
 
 type UnexpectedResponse struct {
@@ -201,7 +201,7 @@ func (client *Client) GetOryAccessControlPolicy(flavor Flavor, id string) (*GetO
 		}
 		return r, nil
 	case http.StatusNotFound:
-		return nil, ErrPolicyNotFound
+		return nil, ErrNotFound
 	case http.StatusInternalServerError:
 		r := &ResponseError{}
 		dec := json.NewDecoder(response.Body)
@@ -278,6 +278,43 @@ func (client *Client) UpsertOryAccessControlRole(flavor Flavor, request *UpsertO
 			return nil, err
 		}
 		return r, nil
+	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, r
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}
+
+// GetOryAccessControlRole return a ORY Access Control Role by ID.
+//
+// ```
+// GET /engines/acp/ory/{flavor}/roles/{id} HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#get-an-ory-access-control-policy-role
+func (client *Client) GetOryAccessControlRole(flavor Flavor, id string) (*GetORYAccessRoleResponseOK, error) {
+	response, err := client.client.Get(client._url+"/engines/acp/ory/"+string(flavor)+"/roles/"+id, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &GetORYAccessRoleResponseOK{}
+		err := json.NewDecoder(response.Body).Decode(&r.Role)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
+	case http.StatusNotFound:
+		return nil, ErrNotFound
 	case http.StatusInternalServerError:
 		r := &ResponseError{}
 		dec := json.NewDecoder(response.Body)

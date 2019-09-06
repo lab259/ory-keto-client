@@ -3,9 +3,14 @@ COVERAGEFILE=$(COVERDIR)/cover.out
 COVERAGEREPORT=$(COVERDIR)/report.html
 
 GINKGO=go run github.com/onsi/ginkgo/ginkgo
+TEST_FLAGS=
+
+with-escaping:
+	$(eval TEST_FLAGS="$(TEST_FLAGS) -gcflags='-m -m'")
+	@:
 
 test:
-	@$(GINKGO) --failFast ./...
+	@$(GINKGO) $(TEST_FLAGS) --failFast ./...
 
 test-watch:
 	@$(GINKGO) watch -cover -r ./...
@@ -30,4 +35,4 @@ vet:
 fmt:
 	@go fmt ./...
 
-.PHONY: test test-watch coverage coverage-ci coverage-html vet fmt
+.PHONY: test test-watch coverage coverage-ci coverage-html vet fmt with-escaping
