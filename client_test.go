@@ -404,4 +404,69 @@ var _ = Describe("Client", func() {
 			Expect(err).To(Equal(ketoclient.ErrNotFound))
 		})
 	})
+
+	Describe("ListOryAccessControlRole", func() {
+		It("should list one role", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id1",
+					Members: []string{"user:snake-eyes", "user:tank", "user:scarlet"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			listResponse, err := client.ListOryAccessControlRole(ketoclient.Exact, &ketoclient.ListORYAccessRoleRequest{})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Roles).To(HaveLen(1))
+			Expect(listResponse.Roles[0].ID).To(Equal("id1"))
+			Expect(listResponse.Roles[0].Members).To(ConsistOf("user:snake-eyes", "user:tank", "user:scarlet"))
+
+		})
+
+		It("should initialize a client with options", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id1",
+					Members: []string{"user1", "user2", "user3"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id2",
+					Members: []string{"user3"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id3",
+					Members: []string{"user4", "user5"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			listResponse, err := client.ListOryAccessControlRole(ketoclient.Exact, &ketoclient.ListORYAccessRoleRequest{
+				Limit: 2,
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Roles).To(HaveLen(2))
+			Expect(listResponse.Roles[0].ID).To(Equal("id1"))
+			Expect(listResponse.Roles[1].ID).To(Equal("id2"))
+
+			listResponse, err = client.ListOryAccessControlRole(ketoclient.Exact, &ketoclient.ListORYAccessRoleRequest{
+				Limit:  2,
+				Offset: 2,
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Roles).To(HaveLen(1))
+			Expect(listResponse.Roles[0].ID).To(Equal("id3"))
+		})
+	})
 })

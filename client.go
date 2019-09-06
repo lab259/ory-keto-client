@@ -327,3 +327,55 @@ func (client *Client) GetOryAccessControlRole(flavor Flavor, id string) (*GetORY
 		return nil, &UnexpectedResponse{Response: response}
 	}
 }
+
+// ListOryAccessControlRole list ORY Access Control Roles.
+//
+// ```
+// GET /engines/acp/ory/{flavor}/roles HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#list-ory-access-control-policy-roles
+func (client *Client) ListOryAccessControlRole(flavor Flavor, request *ListORYAccessRoleRequest) (*ListORYAccessRoleResponseOK, error) {
+	s := ""
+	if request.Limit > 0 {
+		s += fmt.Sprintf("limit=%d", request.Limit)
+	}
+	if request.Offset > 0 {
+		if s != "" {
+			s += "&"
+		}
+		s += fmt.Sprintf("offset=%d", request.Offset)
+	}
+
+	if s != "" {
+		s = "?" + s
+	}
+
+	response, err := client.client.Get(client._url+"/engines/acp/ory/"+string(flavor)+"/roles"+s, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &ListORYAccessRoleResponseOK{
+			Roles: make([]ORYAccessControlRole, 0, request.Limit),
+		}
+		err := json.NewDecoder(response.Body).Decode(&r.Roles)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
+	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, r
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}

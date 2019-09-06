@@ -135,3 +135,17 @@ type UpsertORYAccessRoleResponseOK struct {
 type GetORYAccessRoleResponseOK struct {
 	Role ORYAccessControlRole
 }
+
+/**
+ * GET /engines/acp/ory/{flavor}/roles HTTP/1.1
+ * Accept: application/json
+ */
+
+type ListORYAccessRoleRequest struct {
+	Limit  int64
+	Offset int64
+}
+
+type ListORYAccessRoleResponseOK struct {
+	Roles []ORYAccessControlRole
+}
