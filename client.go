@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/gojek/heimdall/hystrix"
 )
@@ -205,7 +203,6 @@ func (client *Client) GetOryAccessControlPolicy(flavor Flavor, id string) (*GetO
 	case http.StatusNotFound:
 		return nil, ErrPolicyNotFound
 	case http.StatusInternalServerError:
-		io.Copy(os.Stdout, response.Body)
 		r := &ResponseError{}
 		dec := json.NewDecoder(response.Body)
 		err := dec.Decode(r)
@@ -215,5 +212,35 @@ func (client *Client) GetOryAccessControlPolicy(flavor Flavor, id string) (*GetO
 		return nil, r
 	default:
 		return nil, &UnexpectedResponse{Response: response}
+	}
+}
+
+// DeleteOryAccessControlPolicy deletes an ORY Access Control Policy.
+//
+// ```
+// DELETE /engines/acp/ory/{flavor}/policies/{id} HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#deleteoryaccesscontrolpolicy
+func (client *Client) DeleteOryAccessControlPolicy(flavor Flavor, id string) error {
+	response, err := client.client.Delete(client._url+"/engines/acp/ory/"+string(flavor)+"/policies/"+id, nil)
+	if err != nil {
+		return err
+	}
+
+	switch response.StatusCode {
+	case http.StatusNoContent:
+		return nil
+	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return err
+		}
+		return r
+	default:
+		return &UnexpectedResponse{Response: response}
 	}
 }

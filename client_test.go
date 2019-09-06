@@ -317,4 +317,39 @@ var _ = Describe("Client", func() {
 			Expect(err).To(Equal(ketoclient.ErrPolicyNotFound))
 		})
 	})
+
+	Describe("DeleteOryAccessControlPolicy", func() {
+		It("should delete a policy", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlPolicy(ketoclient.Exact, &ketoclient.UpsertORYAccessPolicyRequest{
+				ORYAccessControlPolicy: ketoclient.ORYAccessControlPolicy{
+					ID:          "id1",
+					Description: "Delete action for Snake Eyes",
+					Subjects:    []string{"user:snake-eyes"},
+					Resources:   []string{"blog1:post:33"},
+					Actions:     []string{"delete"},
+					Effect:      ketoclient.Allow,
+					Conditions: map[string]interface{}{
+						"test": "value",
+					},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			err = client.DeleteOryAccessControlPolicy(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+
+			listResponse, err := client.ListOryAccessControlPolicy(ketoclient.Exact, &ketoclient.ListORYAccessPolicyRequest{})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(listResponse.Policies).To(HaveLen(0))
+		})
+
+		It("should delete a non existing policy (YEASSSS, that is right)", func() {
+			client := ketoClient()
+
+			err := client.DeleteOryAccessControlPolicy(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
 })
