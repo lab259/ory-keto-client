@@ -497,4 +497,88 @@ var _ = Describe("Client", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
+
+	Describe("AddMembersOryAccessControlRole", func() {
+		It("should add some members to a role", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id1",
+					Members: []string{"snake-eyes"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			response, err := client.AddMembersOryAccessControlRole(ketoclient.Exact, "id1", &ketoclient.AddMembersORYAccessRoleRequest{
+				Members: []string{"scarlet", "tank"},
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response.Role.ID).To(Equal("id1"))
+			Expect(response.Role.Members).To(ConsistOf("snake-eyes", "scarlet", "tank"))
+
+			getResponse, err := client.GetOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(getResponse.Role.ID).To(Equal("id1"))
+			Expect(getResponse.Role.Members).To(ConsistOf("snake-eyes", "scarlet", "tank"))
+		})
+
+		It("should add members to a non existing role (YEASSSS, that is right)", func() {
+			client := ketoClient()
+
+			response, err := client.AddMembersOryAccessControlRole(ketoclient.Exact, "id1", &ketoclient.AddMembersORYAccessRoleRequest{
+				Members: []string{"scarlet", "tank"},
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response.Role.ID).To(Equal("id1"))
+			Expect(response.Role.Members).To(ConsistOf("scarlet", "tank"))
+
+			getResponse, err := client.GetOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(getResponse.Role.ID).To(Equal("id1"))
+			Expect(getResponse.Role.Members).To(ConsistOf("scarlet", "tank"))
+		})
+	})
+
+	Describe("RemoveMemberOryAccessControlRole", func() {
+		It("should remove a member from a rule", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id1",
+					Members: []string{"snake-eyes", "scarlet"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			err = client.RemoveMemberOryAccessControlRole(ketoclient.Exact, "id1", "scarlet")
+			Expect(err).ToNot(HaveOccurred())
+
+			getResponse, err := client.GetOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(getResponse.Role.ID).To(Equal("id1"))
+			Expect(getResponse.Role.Members).To(ConsistOf("snake-eyes"))
+		})
+
+		It("should remove members that are not in the role", func() {
+			client := ketoClient()
+
+			_, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id1",
+					Members: []string{"snake-eyes"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			err = client.RemoveMemberOryAccessControlRole(ketoclient.Exact, "id1", "scarlet")
+			Expect(err).ToNot(HaveOccurred())
+
+			getResponse, err := client.GetOryAccessControlRole(ketoclient.Exact, "id1")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(getResponse.Role.ID).To(Equal("id1"))
+			Expect(getResponse.Role.Members).To(ConsistOf("snake-eyes"))
+		})
+	})
 })

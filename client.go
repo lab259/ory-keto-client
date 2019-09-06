@@ -380,7 +380,7 @@ func (client *Client) ListOryAccessControlRole(flavor Flavor, request *ListORYAc
 	}
 }
 
-// DeleteOryAccessControlRole deletes an ORY Access Control Policy.
+// DeleteOryAccessControlRole deletes an ORY Access Control Role.
 //
 // ```
 // DELETE /engines/acp/ory/{flavor}/roles/{id} HTTP/1.1
@@ -396,6 +396,79 @@ func (client *Client) DeleteOryAccessControlRole(flavor Flavor, id string) error
 
 	switch response.StatusCode {
 	case http.StatusNoContent:
+		return nil
+	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return err
+		}
+		return r
+	default:
+		return &UnexpectedResponse{Response: response}
+	}
+}
+
+// AddMembersOryAccessControlRole deletes an ORY Access Control Policy.
+//
+// ```
+// PUT /engines/acp/ory/{flavor}/roles/{id}/members HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#add-a-member-to-an-ory-access-control-policy-role
+func (client *Client) AddMembersOryAccessControlRole(flavor Flavor, id string, request *AddMembersORYAccessRoleRequest) (*AddMembersORYAccessRoleResponseOK, error) {
+	buf := bytes.NewBuffer(nil)
+	enc := json.NewEncoder(buf)
+	err := enc.Encode(request)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := client.client.Put(client._url+"/engines/acp/ory/"+string(flavor)+"/roles/"+id+"/members", buf, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &AddMembersORYAccessRoleResponseOK{}
+		err := json.NewDecoder(response.Body).Decode(&r.Role)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
+	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, r
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}
+
+// RemoveMemberOryAccessControlRole removes a member from an ORY Access Control
+// Role.
+//
+// ```
+// DELETE /engines/acp/ory/{flavor}/roles/{id}/members/{member} HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#remove-a-member-from-an-ory-access-control-policy-role
+func (client *Client) RemoveMemberOryAccessControlRole(flavor Flavor, id, member string) error {
+	response, err := client.client.Delete(client._url+"/engines/acp/ory/"+string(flavor)+"/roles/"+id+"/members/"+member, nil)
+	if err != nil {
+		return err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
 		return nil
 	case http.StatusInternalServerError:
 		r := &ResponseError{}
