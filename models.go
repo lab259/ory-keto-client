@@ -172,6 +172,20 @@ type HealthAliveResponse struct {
 	Status string `json:"status"`
 }
 
+/**
+ * GET /health/readness HTTP/1.1
+ * Accept: application/json
+ */
+
 type HealthReadnessResponse struct {
 	Status string `json:"status"`
+}
+
+/**
+ * GET /version HTTP/1.1
+ * Accept: application/json
+ */
+
+type VersionResponse struct {
+	Version string `json:"version"`
 }

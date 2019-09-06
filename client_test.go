@@ -601,4 +601,14 @@ var _ = Describe("Client", func() {
 			Expect(response.Status).To(Equal("ok"))
 		})
 	})
+
+	Describe("Version", func() {
+		It("should return the server version", func() {
+			client := ketoClient()
+
+			response, err := client.Version()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response.Version).To(Equal("v0.3.3-sandbox+oryOS.12"))
+		})
+	})
 })

@@ -555,3 +555,32 @@ func (client *Client) HealthReadness() (*HealthReadnessResponse, error) {
 		return nil, &UnexpectedResponse{Response: response}
 	}
 }
+
+// Version returns the service version typically notated using semantic
+// versioning.
+//
+// ```
+// GET /version HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#get-service-version
+func (client *Client) Version() (*VersionResponse, error) {
+	response, err := client.client.Get(client._url+"/version", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &VersionResponse{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}
