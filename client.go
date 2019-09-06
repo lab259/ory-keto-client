@@ -57,10 +57,10 @@ const (
 	Regex Flavor = "regex"
 )
 
-// Allowed check if a request is allowed.
+// AllowedOryAccessControlPolicy check if a request is allowed.
 //
 // See Also https://www.ory.sh/docs/keto/sdk/api#check-if-a-request-is-allowed
-func (client *Client) Allowed(flavor Flavor, request *AllowedORYAccessControlPolicyRequest) (*AllowedORYAccessControlPolicyResponse, error) {
+func (client *Client) AllowedOryAccessControlPolicy(flavor Flavor, request *AllowedORYAccessControlPolicyRequest) (*AllowedORYAccessControlPolicyResponse, error) {
 	buf := bytes.NewBuffer(nil)
 	enc := json.NewEncoder(buf)
 	err := enc.Encode(request)

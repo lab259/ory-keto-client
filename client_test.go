@@ -92,7 +92,7 @@ var _ = Describe("Client", func() {
 			})
 			Expect(err).ToNot(HaveOccurred())
 
-			response, err := client.Allowed(ketoclient.Exact, &ketoclient.AllowedORYAccessControlPolicyRequest{
+			response, err := client.AllowedOryAccessControlPolicy(ketoclient.Exact, &ketoclient.AllowedORYAccessControlPolicyRequest{
 				Action:   "delete",
 				Resource: "blog1:post:33",
 				Subject:  "user:snake-eyes",
@@ -104,7 +104,7 @@ var _ = Describe("Client", func() {
 		It("should deny an action that is not present", func() {
 			client := ketoClient()
 
-			response, err := client.Allowed(ketoclient.Exact, &ketoclient.AllowedORYAccessControlPolicyRequest{
+			response, err := client.AllowedOryAccessControlPolicy(ketoclient.Exact, &ketoclient.AllowedORYAccessControlPolicyRequest{
 				Action:   "delete",
 				Resource: "blog1:post:34",
 				Subject:  "user:snake-eyes",
