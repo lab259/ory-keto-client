@@ -482,3 +482,76 @@ func (client *Client) RemoveMemberOryAccessControlRole(flavor Flavor, id, member
 		return &UnexpectedResponse{Response: response}
 	}
 }
+
+// HealthAlive returns a 200 status code when the HTTP server is up running.
+//
+// ```
+// GET /health/alive HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#check-alive-status
+func (client *Client) HealthAlive() (*HealthAliveResponse, error) {
+	response, err := client.client.Get(client._url+"/health/alive", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &HealthAliveResponse{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
+	case http.StatusServiceUnavailable:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, r
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}
+
+// HealthReadness returns a 200 status code when the HTTP server is up running
+// and the environment dependencies (e.g. the database) are responsive as well.
+//
+// ```
+// GET /health/ready HTTP/1.1
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#check-readiness-status
+func (client *Client) HealthReadness() (*HealthReadnessResponse, error) {
+	response, err := client.client.Get(client._url+"/health/ready", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &HealthReadnessResponse{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
+	case http.StatusServiceUnavailable:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, r
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}

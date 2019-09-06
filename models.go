@@ -162,3 +162,16 @@ type AddMembersORYAccessRoleRequest struct {
 type AddMembersORYAccessRoleResponseOK struct {
 	Role ORYAccessControlRole
 }
+
+/**
+ * GET /health/alive HTTP/1.1
+ * Accept: application/json
+ */
+
+type HealthAliveResponse struct {
+	Status string `json:"status"`
+}
+
+type HealthReadnessResponse struct {
+	Status string `json:"status"`
+}

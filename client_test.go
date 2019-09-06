@@ -581,4 +581,24 @@ var _ = Describe("Client", func() {
 			Expect(getResponse.Role.Members).To(ConsistOf("snake-eyes"))
 		})
 	})
+
+	Describe("HealthAlive", func() {
+		It("should the server be alive", func() {
+			client := ketoClient()
+
+			response, err := client.HealthAlive()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response.Status).To(Equal("ok"))
+		})
+	})
+
+	Describe("HealthReadness", func() {
+		It("should the server be ready", func() {
+			client := ketoClient()
+
+			response, err := client.HealthReadness()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response.Status).To(Equal("ok"))
+		})
+	})
 })
