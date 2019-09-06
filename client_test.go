@@ -5,9 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"time"
 
+	"github.com/lab259/errors"
 	ketoclient "github.com/lab259/ory-keto-client"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -609,6 +611,29 @@ var _ = Describe("Client", func() {
 			response, err := client.Version()
 			Expect(err).ToNot(HaveOccurred())
 			Expect(response.Version).To(Equal("v0.3.3-sandbox+oryOS.12"))
+		})
+	})
+
+	Describe("CheckVersion", func() {
+		It("should check if the server is compatible with this library version", func() {
+			client := ketoClient()
+
+			Expect(client.CheckVersion()).To(Succeed())
+		})
+
+		It("should fail checking the server compatibility with an old server", func() {
+			ts := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, req *http.Request) {
+				response.Write([]byte(`{"version":"v0.2.1"}`))
+			}))
+			defer ts.Close()
+
+			u, err := url.Parse(ts.URL)
+			Expect(err).ToNot(HaveOccurred())
+			client := ketoclient.New(ketoclient.WithURL(u))
+
+			err = client.CheckVersion()
+			Expect(errors.Is(err, ketoclient.ErrServerIncompatible)).To(BeTrue())
+			Expect(err.Error()).To(HavePrefix("got v0.2.1"))
 		})
 	})
 })

@@ -3,16 +3,24 @@ package ketoclient
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
+	"github.com/lab259/errors/v2"
+
+	"github.com/blang/semver"
 	"github.com/gojek/heimdall/hystrix"
 )
 
+const clientVersionCompatibility = ">=0.3.0"
+
 var (
-	ErrNotFound = errors.New("policy not found")
+	clientVersion = semver.MustParseRange(clientVersionCompatibility)
+
+	ErrNotFound           = errors.New("policy not found")
+	ErrServerIncompatible = errors.New("server incompatible. required: " + clientVersionCompatibility)
 )
 
 type UnexpectedResponse struct {
@@ -583,4 +591,23 @@ func (client *Client) Version() (*VersionResponse, error) {
 	default:
 		return nil, &UnexpectedResponse{Response: response}
 	}
+}
+
+func (client *Client) CheckVersion() error {
+	response, err := client.Version()
+	if err != nil {
+		return err
+	}
+	v := response.Version
+	if strings.HasPrefix(v, "v") {
+		v = v[1:]
+	}
+	sv, err := semver.Make(v)
+	if err != nil {
+		return err
+	}
+	if clientVersion(sv) {
+		return nil
+	}
+	return errors.Wrap(ErrServerIncompatible, errors.Message("got "+response.Version))
 }

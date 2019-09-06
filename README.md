@@ -15,6 +15,10 @@ to see why is this important.
 
 TODO
 
+### Compatibility
+
+This client was developed and tested with version `v0.3.3-sandbox`.
+
 ### Prerequisites
 
 What things you need to setup the project:
