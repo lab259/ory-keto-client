@@ -352,4 +352,23 @@ var _ = Describe("Client", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
+
+	Describe("UpsertOryAccessControlRole", func() {
+		FIt("should insert a role", func() {
+			client := ketoClient()
+
+			response, err := client.UpsertOryAccessControlRole(ketoclient.Exact, &ketoclient.UpsertORYAccessRoleRequest{
+				Role: ketoclient.ORYAccessControlRole{
+					ID:      "id1",
+					Members: []string{"user:snake-eyes", "user:tank", "user:scarlet"},
+				},
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response).ToNot(BeNil())
+			Expect(response.Role.ID).To(Equal("id1"))
+			Expect(response.Role.Members).To(ConsistOf("user:snake-eyes", "user:tank", "user:scarlet"))
+
+			// TODO: To list the roles.
+		})
+	})
 })

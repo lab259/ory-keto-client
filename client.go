@@ -244,3 +244,49 @@ func (client *Client) DeleteOryAccessControlPolicy(flavor Flavor, id string) err
 		return &UnexpectedResponse{Response: response}
 	}
 }
+
+// UpsertOryAccessControlRole update or insert a ORY Access Control Role.
+//
+// Roles group several subjects into one. Rules can be assigned to ORY Access
+// Control Policy (OACP) by using the Role ID as subject in the OACP.
+//
+// ```
+// PUT /engines/acp/ory/{flavor}/roles HTTP/1.1
+// Content-Type: application/json
+// Accept: application/json
+// ```
+//
+// See Also https://www.ory.sh/docs/keto/sdk/api#upsert-an-ory-access-control-policy-role
+func (client *Client) UpsertOryAccessControlRole(flavor Flavor, request *UpsertORYAccessRoleRequest) (*UpsertORYAccessRoleResponseOK, error) {
+	buf := bytes.NewBuffer(nil)
+	enc := json.NewEncoder(buf)
+	err := enc.Encode(request.Role)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := client.client.Put(client._url+"/engines/acp/ory/"+string(flavor)+"/roles", buf, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	switch response.StatusCode {
+	case http.StatusOK:
+		r := &UpsertORYAccessRoleResponseOK{}
+		err := json.NewDecoder(response.Body).Decode(&r.Role)
+		if err != nil {
+			return nil, err
+		}
+		return r, nil
+	case http.StatusInternalServerError:
+		r := &ResponseError{}
+		dec := json.NewDecoder(response.Body)
+		err := dec.Decode(r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, r
+	default:
+		return nil, &UnexpectedResponse{Response: response}
+	}
+}

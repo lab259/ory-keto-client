@@ -23,6 +23,11 @@ type ORYAccessControlPolicy struct {
 	Subjects    []string    `json:"subjects"`
 }
 
+type ORYAccessControlRole struct {
+	ID      string   `json:"id"`
+	Members []string `json:"members"`
+}
+
 // ResponseError is the default error format for the Keto service.
 type ResponseError struct {
 	Code    int64           `json:"code"`
@@ -105,4 +110,18 @@ type ListORYAccessPolicyResponseOK struct {
 
 type GetORYAccessPolicyResponseOK struct {
 	Policy ORYAccessControlPolicy
+}
+
+/**
+ * PUT /engines/acp/ory/{flavor}/roles HTTP/1.1
+ * Content-Type: application/json
+ * Accept: application/json
+ */
+
+type UpsertORYAccessRoleRequest struct {
+	Role ORYAccessControlRole
+}
+
+type UpsertORYAccessRoleResponseOK struct {
+	Role ORYAccessControlRole
 }
